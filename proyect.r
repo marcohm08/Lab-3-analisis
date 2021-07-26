@@ -12,8 +12,6 @@ head <- c("animal name","hair",
 
 # Se cargan los datos
 data <- read.table("zoo.data",header = FALSE, sep = ",")
-data$type <- factor(data$type)
-
 
 # Se agrega cabecera a la base de datos
 colnames(data) <- head
@@ -38,6 +36,7 @@ data.wide[["breathes"]] <- as.logical(data.wide[["breathes"]])
 data.wide[["venomous"]] <- as.logical(data.wide[["venomous"]])
 data.wide[["fins"]] <- as.logical(data.wide[["fins"]])
 data.wide[["tail"]] <- as.logical(data.wide[["tail"]])
+data.wide[["legs"]] <- as.logical(data.wide[["legs"]])
 data.wide[["domestic"]] <- as.logical(data.wide[["domestic"]])
 data.wide[["catsize"]] <- as.logical(data.wide[["catsize"]])
 
@@ -186,3 +185,12 @@ dfc <- data.wide %>%
 
 hc <- ggplot(data = dfc, mapping = aes(x = type, y= counts,  fill = catsize)) + geom_bar(stat="identity",position = "dodge")
 
+# data.wide <- subset( data.wide, select = -c(aquatic, venomous, predator, domestic, catsize) ) 
+
+reglas <- apriori(
+  data = data.wide, 
+  parameter=list(support = 0.1, minlen = 2, maxlen = 15, target="rules"),
+  appearance=list(rhs = c("type=1", "type=2", "type=3","type=4","type=5","type=6","type=7"))
+)
+
+inspeccion <- inspect(sort(x = reglas, decreasing = TRUE, by = "confidence"))
