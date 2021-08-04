@@ -33,6 +33,7 @@ colnames(peso.atr) <- c("atributo", "info_gain", "ratio_gain")
 
 #Eliminacion de atributos
 data <- subset( data, select = -c(aquatic, venomous, predator, domestic, catsize) )
+data <- data[-26, ]
 
 tabla <- table(data$type)
 prob <- prop.table(tabla)
@@ -159,34 +160,32 @@ summary(data.wide)
 # 
 # hta <- ggplot(data = dfta, mapping = aes(x = type, y= counts,  fill = tail)) + geom_bar(stat="identity",position = "dodge")
 
-# observacion clase 3 5 6 y 7 para unir
-sub.data.wide <- num.wide.data[num.wide.data$type >= 5 | num.wide.data$type == 3 , ] %>% group_by(type)
-
-# se agrupan las clases 3 5 6 y 7, en la clase 3
+# se agrupan las clases 3 5 y 7, en la clase 3
 new.data.wide <- data.wide
-new.data.wide <- mutate(new.data.wide, type = case_when(type == 5 ~ 3,
-                                     type == 6 ~ 3,
-                                     type == 3 ~ 3,
-                                     type == 7 ~ 3,
-                                     type == 1 ~ 1,
-                                     type == 2 ~ 2,
-                                     type == 4 ~ 4))
+new.data.wide <- mutate(new.data.wide, type = case_when(type == 1 ~ "mamifero",
+                                     type == 2 ~ "ave",
+                                     type == 3 ~ "otro",
+                                     type == 4 ~ "pez",
+                                     type == 5 ~ "otro",
+                                     type == 6 ~ "insecto",
+                                     type == 7 ~ "otro"))
 new.data.wide$type <- factor(new.data.wide$type)
+
+
 
 new.reglas <- apriori(
   data = new.data.wide, 
-  parameter=list(support = 0.1, minlen = 2, maxlen = 11, target="rules"),
-  appearance=list(rhs = c("type=1", "type=2", "type=3","type=4"))
+  parameter=list(support = 0.03, minlen = 1, maxlen = 11, target="rules"),
+  appearance=list(rhs = c("type=mamifero", "type=ave", "type=pez", "type=otro", "type=insecto"))
 )
 
 new.inspeccion <- inspect(sort(x = new.reglas, decreasing = TRUE, by = "confidence"))
 
-# Creación de reglas
-
-reglas <- apriori(
-  data = data.wide, 
-  parameter=list(support = 0.03, minlen = 2, maxlen = 11, target="rules"),
-  appearance=list(rhs = c("type=1", "type=2", "type=3","type=4","type=5","type=6","type=7"))
-)
-
-inspeccion <- inspect(sort(x = reglas, decreasing = TRUE, by = "confidence"))
+# # Creación de reglas
+# reglas <- apriori(
+#   data = data.wide, 
+#   parameter=list(support = 0.03, minlen = 1, maxlen = 11, target="rules"),
+#   appearance=list(rhs = c("type=1", "type=2", "type=3","type=4","type=5","type=6","type=7"))
+# )
+# 
+# inspeccion <- inspect(sort(x = reglas, decreasing = TRUE, by = "confidence"))
