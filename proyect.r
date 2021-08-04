@@ -161,25 +161,23 @@ summary(data.wide)
 # hta <- ggplot(data = dfta, mapping = aes(x = type, y= counts,  fill = tail)) + geom_bar(stat="identity",position = "dodge")
 
 # se agrupan las clases 3 5 y 7, en la clase 3
-new.data.wide <- data.wide
-new.data.wide <- mutate(new.data.wide, type = case_when(type == 1 ~ "mamifero",
+data.wide <- mutate(data.wide, type = case_when(type == 1 ~ "mamifero",
                                      type == 2 ~ "ave",
                                      type == 3 ~ "otro",
                                      type == 4 ~ "pez",
                                      type == 5 ~ "otro",
                                      type == 6 ~ "insecto",
                                      type == 7 ~ "otro"))
-new.data.wide$type <- factor(new.data.wide$type)
+data.wide$type <- factor(data.wide$type)
 
 
-
-new.reglas <- apriori(
-  data = new.data.wide, 
+reglas <- apriori(
+  data = data.wide, 
   parameter=list(support = 0.03, minlen = 1, maxlen = 11, target="rules"),
   appearance=list(rhs = c("type=mamifero", "type=ave", "type=pez", "type=otro", "type=insecto"))
 )
 
-new.inspeccion <- inspect(sort(x = new.reglas, decreasing = TRUE, by = "confidence"))
+inspeccion <- inspect(sort(x = reglas, decreasing = TRUE, by = "confidence"))
 
 # # Creación de reglas
 # reglas <- apriori(
